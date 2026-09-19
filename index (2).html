@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ระบบติดตามช่วยเหลือผู้เรียน · ศูนย์ส่งเสริมการเรียนรู้อำเภอยี่งอ</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<style>
+  :root{
+    --bg:#faf9f4;
+    --card:#ffffff;
+    --text:#0f172a;
+    --muted:#64748b;
+    --accent:#297a2e;
+    --accent-soft:rgba(41,122,46,.14);
+    --accent2:#d97706;
+    --accent2-soft:rgba(217,119,6,.14);
+    --border:rgba(15,23,42,.08);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'Fredoka',sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:56px 24px}
+
+  /* Hero */
+  .hero{margin-bottom:56px}
+  .hero-top{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+  .hero-icon{
+    width:48px;height:48px;border-radius:12px;
+    background:var(--accent-soft);color:var(--accent);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .eyebrow{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);
+  }
+  .hero h1{
+    font-size:40px;font-weight:700;margin:0;letter-spacing:-.02em;line-height:1.15;color:var(--text);
+  }
+  .hero p{color:var(--muted);max-width:680px;font-size:16px;margin-top:12px;line-height:1.7}
+
+  /* Section header */
+  .sec-head{display:flex;align-items:baseline;gap:10px;margin-bottom:20px}
+  .sec-num{
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:13px;color:var(--accent);font-weight:600;
+  }
+  .sec-head h2{font-size:22px;font-weight:600;margin:0;color:var(--text)}
+
+  /* Metric cards */
+  .metrics{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:56px}
+  .metric-card{
+    flex:1 1 210px;background:var(--card);border:1px solid var(--border);
+    border-radius:16px;padding:22px;box-shadow:0 1px 3px rgba(0,0,0,.06);
+    transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease;
+  }
+  .metric-card:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,0,0,.08);border-color:var(--accent)}
+  .metric-top{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+  .metric-icon{
+    width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  }
+  .metric-label{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:500}
+  .metric-value{font-size:32px;font-weight:700;color:var(--text);line-height:1.2}
+  .metric-sub{font-size:12px;margin-top:6px;color:var(--muted)}
+  .metric-sub.up{color:var(--accent);font-weight:500}
+
+  /* Process steps */
+  .process{margin-bottom:56px}
+  .steps{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;
+  }
+  .step-card{
+    background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;
+    box-shadow:0 1px 3px rgba(0,0,0,.06);transition:transform .25s ease;
+  }
+  .step-card:hover{transform:translateY(-2px)}
+  .step-num{
+    width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+    font-weight:700;margin-bottom:12px;
+  }
+  .step-card h3{font-size:16px;font-weight:600;margin:0 0 8px;color:var(--text)}
+  .step-card p{font-size:13px;color:var(--muted);margin:0;line-height:1.65}
+
+  /* Grid layout */
+  .grid-2{display:grid;grid-template-columns:1fr;gap:24px;margin-bottom:56px}
+  @media(min-width:1024px){.grid-2{grid-template-columns:1fr 2fr}}
+  .grid-2eq{display:grid;grid-template-columns:1fr;gap:24px;margin-bottom:56px}
+  @media(min-width:1024px){.grid-2eq{grid-template-columns:1fr 1fr}}
+
+  .panel{
+    background:var(--card);border:1px solid var(--border);border-radius:16px;padding:26px;
+    box-shadow:0 1px 3px rgba(0,0,0,.06);
+  }
+
+  /* Role tabs */
+  .role-tabs{display:flex;flex-wrap:wrap;gap:2px;border-bottom:1px solid var(--border);margin-bottom:18px}
+  .role-tab{
+    padding:10px 16px;font-size:14px;font-weight:500;color:var(--muted);cursor:pointer;
+    border-bottom:2px solid transparent;transition:all .2s ease;
+  }
+  .role-tab.active{
+    background:var(--accent-soft);border-bottom-color:var(--accent);color:var(--text);
+  }
+  .role-content{min-height:220px;font-size:14px;color:var(--text);line-height:1.75}
+  .role-content .role-title{font-weight:600;color:var(--accent);margin-bottom:10px}
+  .role-content ul{margin:0;padding-left:20px;color:var(--muted)}
+  .role-content li{margin-bottom:8px}
+
+  /* Chart */
+  .chart-wrap{width:100%;height:340px}
+
+  /* Channels */
+  .channel-list{display:flex;flex-direction:column;gap:12px}
+  .channel-item{
+    display:flex;align-items:flex-start;gap:12px;padding:14px;border-radius:12px;
+  }
+  .channel-icon{
+    width:34px;height:34px;border-radius:9px;background:var(--card);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .channel-item h4{font-size:14px;font-weight:600;margin:0 0 4px;color:var(--text)}
+  .channel-item p{font-size:12px;color:var(--muted);margin:0;line-height:1.55}
+
+  /* KPI bars */
+  .kpi-list{display:flex;flex-direction:column;gap:18px}
+  .kpi-row{}
+  .kpi-head{display:flex;justify-content:space-between;font-size:14px;margin-bottom:8px;color:var(--text)}
+  .kpi-head .val{font-weight:600}
+  .kpi-track{height:10px;background:rgba(128,128,128,.08);border-radius:6px;overflow:hidden}
+  .kpi-fill{height:100%;border-radius:6px;transition:width .8s ease}
+
+  /* Table */
+  .tbl-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  thead th{
+    text-align:left;padding:12px 14px 12px 0;font-size:11px;text-transform:uppercase;
+    letter-spacing:.08em;color:var(--muted);font-weight:500;
+    border-bottom:1px solid var(--border);
+  }
+  tbody td{
+    padding:14px 14px 14px 0;border-bottom:1px solid var(--border);color:var(--text);
+  }
+  tbody tr:last-child td{border-bottom:none}
+  tbody td.muted{color:var(--muted)}
+  tbody td.name{font-weight:500}
+  .pill{
+    display:inline-block;padding:3px 11px;border-radius:20px;font-size:12px;font-weight:500;
+    border:1px solid transparent;
+  }
+  .pill.ok{background:var(--accent-soft);border-color:var(--accent);color:var(--text)}
+  .pill.warn{background:var(--accent2-soft);border-color:var(--accent2);color:var(--text)}
+  .pill.done{background:rgba(13,148,136,.14);border-color:#0d9488;color:var(--text)}
+  .pill.issue{background:rgba(186,59,91,.14);border-color:#ba3b5b;color:var(--text)}
+
+  .note{font-size:12px;color:var(--muted);margin-top:16px}
+
+  footer{
+    margin-top:64px;padding-top:22px;border-top:1px solid var(--border);
+    display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;
+    font-size:12px;color:var(--muted);
+  }
+
+  /* Reveal animation */
+  .reveal{opacity:0;transform:translateY(20px);animation:fadeUp .6s ease forwards}
+  .reveal:nth-child(2){animation-delay:.1s}
+  .reveal:nth-child(3){animation-delay:.2s}
+  .reveal:nth-child(4){animation-delay:.3s}
+  .reveal:nth-child(5){animation-delay:.4s}
+  .reveal:nth-child(6){animation-delay:.5s}
+  @keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HERO -->
+  <section class="hero reveal">
+    <div class="hero-top">
+      <div class="hero-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+          <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+        </svg>
+      </div>
+      <div>
+        <div class="eyebrow">ศูนย์ส่งเสริมการเรียนรู้ · อำเภอยี่งอ</div>
+        <h1>ระบบติดตามช่วยเหลือผู้เรียน</h1>
+      </div>
+    </div>
+    <p>ระบบบริหารจัดการและติดตามความก้าวหน้าของผู้เรียนในเขตอำเภอยี่งอ จังหวัดนราธิวาส เพื่อให้การสนับสนุนการเรียนรู้มีประสิทธิภาพ ต่อเนื่อง และสอดคล้องกับความต้องการเป็นรายบุคคล</p>
+  </section>
+
+  <!-- METRICS -->
+  <section class="metrics reveal">
+    <div class="metric-card">
+      <div class="metric-top">
+        <div class="metric-icon" style="background:var(--accent-soft);color:var(--accent)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
+        <div class="metric-label">ผู้เรียนในระบบ</div>
+      </div>
+      <div class="metric-value">1,248</div>
+      <div class="metric-sub">ครอบคลุม 42 โรงเรียน</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-top">
+        <div class="metric-icon" style="background:var(--accent2-soft);color:var(--accent2)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+        </div>
+        <div class="metric-label">อัตราการติดตาม</div>
+      </div>
+      <div class="metric-value">94.2%</div>
+      <div class="metric-sub up">▲ ดีขึ้น 3.1%</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-top">
+        <div class="metric-icon" style="background:var(--accent-soft);color:var(--accent)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+        </div>
+        <div class="metric-label">อัตราการสำเร็จเป้าหมาย</div>
+      </div>
+      <div class="metric-value">87.5%</div>
+      <div class="metric-sub up">▲ ดีขึ้น 5.4%</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-top">
+        <div class="metric-icon" style="background:var(--accent2-soft);color:var(--accent2)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        </div>
+        <div class="metric-label">ครูที่ปรึกษา</div>
+      </div>
+      <div class="metric-value">86</div>
+      <div class="metric-sub">เฉลี่ย 14 คนต่อครู</div>
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <section class="process reveal">
+    <div class="sec-head">
+      <span class="sec-num">01</span>
+      <h2>กระบวนการทำงาน 5 ขั้นตอน</h2>
+    </div>
+    <div class="steps">
+      <div class="step-card" style="border-top:3px solid var(--accent)">
+        <div class="step-num" style="background:var(--accent-soft);color:var(--accent)">1</div>
+        <h3>ลงทะเบียน & ประเมิน</h3>
+        <p>ผู้เรียนลงทะเบียนเข้าระบบ ผ่านการประเมินพื้นฐานเพื่อระบุความต้องการและระดับความรู้</p>
+      </div>
+      <div class="step-card" style="border-top:3px solid var(--accent2)">
+        <div class="step-num" style="background:var(--accent2-soft);color:var(--accent2)">2</div>
+        <h3>วางแผนส่วนบุคคล</h3>
+        <p>ครูที่ปรึกษาร่วมกับผู้เรียนวางแผนการเรียนรู้เป้าหมายและช่องทางการสนับสนุน</p>
+      </div>
+      <div class="step-card" style="border-top:3px solid var(--accent)">
+        <div class="step-num" style="background:var(--accent-soft);color:var(--accent)">3</div>
+        <h3>ดำเนินการ & ติดตาม</h3>
+        <p>ดำเนินการตามแผน บันทึกความก้าวหน้าเป็นระยะ ผ่านแอปพลิเคชันและการพบปะ</p>
+      </div>
+      <div class="step-card" style="border-top:3px solid var(--accent2)">
+        <div class="step-num" style="background:var(--accent2-soft);color:var(--accent2)">4</div>
+        <h3>ประเมิน & ปรับแผน</h3>
+        <p>ประเมินผลทุก 2 เดือน ปรับแผนการเรียนรู้ให้สอดคล้องกับความก้าวหน้าจริง</p>
+      </div>
+      <div class="step-card" style="border-top:3px solid var(--accent)">
+        <div class="step-num" style="background:var(--accent-soft);color:var(--accent)">5</div>
+        <h3>สรุปผล & ต่อยอด</h3>
+        <p>สรุปผลการเรียนรู้ เสนอแนวทางพัฒนาต่อ หรือจบการสนับสนุนตามความเหมาะสม</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROLES + CHART -->
+  <div class="grid-2 reveal">
+    <section class="panel">
+      <div class="sec-head">
+        <span class="sec-num">02</span>
+        <h2>บทบาทหน้าที่</h2>
+      </div>
+      <div class="role-tabs" id="roleTabs">
+        <div class="role-tab active" data-role="student">ผู้เรียน</div>
+        <div class="role-tab" data-role="mentor">ครูที่ปรึกษา</div>
+        <div class="role-tab" data-role="coord">ผู้ประสานงาน</div>
+        <div class="role-tab" data-role="admin">ผู้บริหาร</div>
+      </div>
+      <div class="role-content" id="roleContent">
+        <div class="role-title">หน้าที่หลัก</div>
+        <ul>
+          <li>เข้าร่วมการประเมินและวางแผนการเรียนรู้</li>
+          <li>ปฏิบัติตามแผนและรายงานความก้าวหน้า</li>
+          <li>ขอความช่วยเหลือเมื่อพบปัญหา</li>
+          <li>เข้าร่วมการประเมินผลตามกำหนด</li>
+          <li>ร่วมมือกับครูที่ปรึกษาและผู้เกี่ยวข้อง</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="sec-head">
+        <span class="sec-num">03</span>
+        <h2>สถานะผู้เรียนในระบบ</h2>
+      </div>
+      <div class="chart-wrap" id="chartStatus"></div>
+    </section>
+  </div>
+
+  <!-- CHANNELS + KPI -->
+  <div class="grid-2eq reveal">
+    <section class="panel">
+      <div class="sec-head">
+        <span class="sec-num">04</span>
+        <h2>ช่องทางการติดตาม & ช่วยเหลือ</h2>
+      </div>
+      <div class="channel-list">
+        <div class="channel-item" style="background:var(--accent-soft)">
+          <div class="channel-icon" style="color:var(--accent)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+              <line x1="12" y1="18" x2="12.01" y2="18"/>
+            </svg>
+          </div>
+          <div>
+            <h4>แอปพลิเคชันมือถือ</h4>
+            <p>บันทึกความก้าวหน้า แจ้งเตือน ติดต่อครูที่ปรึกษาได้ทุกเวลา</p>
+          </div>
+        </div>
+        <div class="channel-item" style="background:var(--accent2-soft)">
+          <div class="channel-icon" style="color:var(--accent2)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+          </div>
+          <div>
+            <h4>ช่องทางการสื่อสาร</h4>
+            <p>ไลน์กลุ่ม, โทรศัพท์, การพบปะหน้าตรงเป็นประจำ</p>
+          </div>
+        </div>
+        <div class="channel-item" style="background:var(--accent-soft)">
+          <div class="channel-icon" style="color:var(--accent)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </div>
+          <div>
+            <h4>ศูนย์ส่งเสริมการเรียนรู้</h4>
+            <p>พื้นที่เรียนรู้ร่วม ห้องปรึกษา ห้องสมุดดิจิทัล</p>
+          </div>
+        </div>
+        <div class="channel-item" style="background:var(--accent2-soft)">
+          <div class="channel-icon" style="color:var(--accent2)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <div>
+            <h4>การประชุมตามกำหนด</h4>
+            <p>ประเมินผลทุก 2 เดือน, ทบทวนแผนรายไตรมาส</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="sec-head">
+        <span class="sec-num">05</span>
+        <h2>ตัวชี้วัดความสำเร็จ (KPI)</h2>
+      </div>
+      <div class="kpi-list">
+        <div class="kpi-row">
+          <div class="kpi-head"><span>อัตราการเข้าร่วมกิจกรรม</span><span class="val" style="color:var(--accent)">92%</span></div>
+          <div class="kpi-track"><div class="kpi-fill" style="width:92%;background:linear-gradient(90deg,var(--accent),var(--accent)cc)"></div></div>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi-head"><span>อัตราการสำเร็จเป้าหมายรายบุคคล</span><span class="val" style="color:var(--accent)">87.5%</span></div>
+          <div class="kpi-track"><div class="kpi-fill" style="width:87.5%;background:linear-gradient(90deg,var(--accent),var(--accent)cc)"></div></div>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi-head"><span>อัตราการติดต่อกลับภายใน 24 ชม.</span><span class="val" style="color:var(--accent2)">95%</span></div>
+          <div class="kpi-track"><div class="kpi-fill" style="width:95%;background:linear-gradient(90deg,var(--accent2),var(--accent2)cc)"></div></div>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi-head"><span>ความพึงพอใจผู้เรียน</span><span class="val" style="color:var(--accent)">4.6/5</span></div>
+          <div class="kpi-track"><div class="kpi-fill" style="width:92%;background:linear-gradient(90deg,var(--accent),var(--accent)cc)"></div></div>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi-head"><span>อัตราการลาออกจากระบบ</span><span class="val" style="color:var(--accent2)">5.8%</span></div>
+          <div class="kpi-track"><div class="kpi-fill" style="width:5.8%;background:linear-gradient(90deg,var(--accent2),var(--accent2)cc)"></div></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- TABLE -->
+  <section class="panel reveal">
+    <div class="sec-head">
+      <span class="sec-num">06</span>
+      <h2>แบบฟอร์มบันทึกการติดตามตัวอย่าง</h2>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>วันที่</th>
+            <th>ชื่อผู้เรียน</th>
+            <th>กิจกรรม/หัวข้อ</th>
+            <th>ความก้าวหน้า</th>
+            <th>สถานะ</th>
+            <th>ครูที่ปรึกษา</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="muted">18 ก.ย. 2569</td>
+            <td class="name">นายอ. ม.ส.</td>
+            <td>คณิตศาสตร์พื้นฐาน บทที่ 3</td>
+            <td>ทำแบบฝึกหัดเสร็จ 80%</td>
+            <td><span class="pill ok">ปกติ</span></td>
+            <td class="muted">นางสาวก.</td>
+          </tr>
+          <tr>
+            <td class="muted">18 ก.ย. 2569</td>
+            <td class="name">นางสาวส. ย.</td>
+            <td>ภาษาไทย อ่านเขียน</td>
+            <td>ต้องเพิ่มเวลาฝึกอ่าน</td>
+            <td><span class="pill warn">ติดตามใกล้ชิด</span></td>
+            <td class="muted">นายม.</td>
+          </tr>
+          <tr>
+            <td class="muted">17 ก.ย. 2569</td>
+            <td class="name">นายร. ซ.</td>
+            <td>ทักษะชีวิต การแก้ปัญหา</td>
+            <td>เข้าร่วมเวิร์กช็อปครบ</td>
+            <td><span class="pill done">สำเร็จ</span></td>
+            <td class="muted">นางพ.</td>
+          </tr>
+          <tr>
+            <td class="muted">17 ก.ย. 2569</td>
+            <td class="name">นางสาวน. ห.</td>
+            <td>วิทยาศาสตร์ การทดลอง</td>
+            <td>ขาดแรงจูงใจ ต้องปรับแผน</td>
+            <td><span class="pill issue">ต้องปรับแผน</span></td>
+            <td class="muted">นายส.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">หมายเหตุ: ข้อมูลในตารางเป็นตัวอย่างเพื่อแสดงรูปแบบการบันทึก</p>
+  </section>
+
+  <footer>
+    <span>ศูนย์ส่งเสริมการเรียนรู้ระดับอำเภอยี่งอ · จังหวัดนราธิวาส</span>
+    <span>ออกแบบระบบ · 2569</span>
+  </footer>
+
+</div>
+
+<script>
+// Role tabs
+(function(){
+  var roles = {
+    student: {
+      title: 'หน้าที่หลัก · ผู้เรียน',
+      items: [
+        'เข้าร่วมการประเมินและวางแผนการเรียนรู้',
+        'ปฏิบัติตามแผนและรายงานความก้าวหน้า',
+        'ขอความช่วยเหลือเมื่อพบปัญหา',
+        'เข้าร่วมการประเมินผลตามกำหนด',
+        'ร่วมมือกับครูที่ปรึกษาและผู้เกี่ยวข้อง'
+      ]
+    },
+    mentor: {
+      title: 'หน้าที่หลัก · ครูที่ปรึกษา',
+      items: [
+        'วางแผนการเรียนรู้ส่วนบุคคลร่วมกับผู้เรียน',
+        'ติดตามความก้าวหน้าเป็นระยะและบันทึกข้อมูล',
+        'ให้คำแนะนำและจัดการเรียนการสอนเสริม',
+        'ประสานงานกับผู้ปกครองและโรงเรียน',
+        'ประเมินผลและเสนอแนวทางปรับปรุงแผน'
+      ]
+    },
+    coord: {
+      title: 'หน้าที่หลัก · ผู้ประสานงาน',
+      items: [
+        'ประสานงานระหว่างศูนย์ โรงเรียน และหน่วยงานที่เกี่ยวข้อง',
+        'จัดทำรายงานสถานการณ์และผลการดำเนินงาน',
+        'จัดหาแหล่งเรียนรู้และวัสดุการศึกษา',
+        'ส่งเสริมและเผยแพร่กิจกรรมของศูนย์',
+        'ติดตามและสนับสนุนการทำงานของครูที่ปรึกษา'
+      ]
+    },
+    admin: {
+      title: 'หน้าที่หลัก · ผู้บริหาร',
+      items: [
+        'กำหนดนโยบายและแผนการดำเนินงานของศูนย์',
+        'ติดตามและประเมินผลการดำเนินงานโดยรวม',
+        'จัดสรรงบประมาณและทรัพยากร',
+        'ส่งเสริมการพัฒนาคุณภาพบุคลากร',
+        'รายงานผลการดำเนินงานต่อหน่วยงานบน'
+      ]
+    }
+  };
+  var tabs = document.querySelectorAll('.role-tab');
+  var content = document.getElementById('roleContent');
+  function render(key){
+    var r = roles[key];
+    content.innerHTML = '<div class="role-title">'+r.title+'</div><ul>'+
+      r.items.map(function(i){return '<li>'+i+'</li>'}).join('')+'</ul>';
+  }
+  tabs.forEach(function(t){
+    t.addEventListener('click',function(){
+      tabs.forEach(function(x){x.classList.remove('active')});
+      t.classList.add('active');
+      render(t.getAttribute('data-role'));
+    });
+  });
+})();
+</script>
+
+<script>
+// ECharts pie
+(function init(n){
+  try {
+    var el = document.getElementById('chartStatus');
+    if(!el) return;
+    if(typeof echarts === 'undefined'){
+      if(n < 40){setTimeout(function(){init(n+1)},250);return;}
+      el.textContent = 'Chart library failed to load';
+      return;
+    }
+    var c = echarts.init(el);
+    c.setOption({
+      backgroundColor:'transparent',
+      tooltip:{trigger:'item',backgroundColor:'#ffffff',borderColor:'rgba(15,23,42,.08)',textStyle:{color:'#0f172a'}},
+      legend:{orient:'vertical',right:'5%',top:'center',textStyle:{color:'#64748b',fontSize:13}},
+      series:[{
+        type:'pie',
+        radius:['45%','70%'],
+        center:['35%','50%'],
+        avoidLabelOverlap:false,
+        itemStyle:{borderRadius:8,borderColor:'#ffffff',borderWidth:2},
+        label:{show:false},
+        emphasis:{label:{show:true,fontSize:14,fontWeight:'bold',color:'#0f172a'}},
+        data:[
+          {value:784,name:'ดำเนินการตามแผน',itemStyle:{color:'#297a2e'}},
+          {value:268,name:'ติดตามใกล้ชิด',itemStyle:{color:'#d97706'}},
+          {value:126,name:'พบปัญหา/ต้องปรับแผน',itemStyle:{color:'#ba3b5b'}},
+          {value:70,name:'สำเร็จเป้าหมาย',itemStyle:{color:'#0d9488'}}
+        ]
+      }]
+    });
+    window.addEventListener('resize',function(){c.resize()});
+  } catch(e){console.error(e)}
+})(0);
+</script>
+
+</body>
+</html>
